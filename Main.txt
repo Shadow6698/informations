@@ -1,0 +1,87 @@
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+-- Criar GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+local frame = Instance.new("Frame", gui)
+frame.Position = UDim2.new(0.4, 0, 0.4, 0)  -- posição mais centralizada
+frame.Size = UDim2.new(0, 200, 0, 140)      -- tamanho menor
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Active = true
+frame.Draggable = true
+
+local box = Instance.new("TextBox", frame)
+box.PlaceholderText = "Nome do jogador"
+box.Position = UDim2.new(0, 10, 0, 10)
+box.Size = UDim2.new(0, 180, 0, 25)
+box.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+box.TextColor3 = Color3.fromRGB(255, 255, 255)
+box.ClearTextOnFocus = false
+box.Font = Enum.Font.SourceSans
+box.TextSize = 14
+
+local button = Instance.new("TextButton", frame)
+button.Text = "Ativar"
+button.Position = UDim2.new(0, 10, 0, 45)
+button.Size = UDim2.new(0, 180, 0, 25)
+button.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Font = Enum.Font.SourceSansBold
+button.TextSize = 16
+
+local info = Instance.new("TextLabel", frame)
+info.Position = UDim2.new(0, 10, 0, 80)
+info.Size = UDim2.new(0, 180, 0, 50)
+info.BackgroundTransparency = 1
+info.TextColor3 = Color3.fromRGB(255, 255, 255)
+info.TextWrapped = true
+info.Text = "Informações aqui"
+info.TextYAlignment = Enum.TextYAlignment.Top
+info.TextXAlignment = Enum.TextXAlignment.Left
+info.Font = Enum.Font.SourceSans
+info.TextSize = 12
+
+local function diasDesde(data)
+	local agora = os.time()
+	local criado = os.time({
+		year = data.year,
+		month = data.month,
+		day = data.day
+	})
+	local diff = os.difftime(agora, criado)
+	return math.floor(diff / (60 * 60 * 24))
+end
+
+button.MouseButton1Click:Connect(function()
+	local nome = box.Text
+	if nome == "" then
+		info.Text = "Digite o nome de um jogador."
+		return
+	end
+
+	local jogador = Players:FindFirstChild(nome)
+	if not jogador then
+		info.Text = "Jogador não está no servidor."
+		return
+	end
+
+	local userId = jogador.UserId
+
+	local success, dados = pcall(function()
+		local res = game:HttpGet("https://users.roblox.com/v1/users/" .. userId)
+		return HttpService:JSONDecode(res)
+	end)
+
+	if success and dados then
+		local data = dados.created:sub(1, 10)
+		local y, m, d = data:match("(%d+)%-(%d+)%-(%d+)")
+		local dias = diasDesde({year=tonumber(y), month=tonumber(m), day=tonumber(d)})
+
+		info.Text = "🧑 Nome Real: " .. dados.name ..
+					"\n🎭 Nome de Exibição: " .. dados.displayName ..
+					"\n📅 Criado em: " .. d .. "/" .. m .. "/" .. y ..
+					"\n⏳ Dias desde criação: " .. dias
+	else
+		info.Text = "Erro ao buscar dados do jogador."
+	end
+end)
