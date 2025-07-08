@@ -4,42 +4,41 @@ local HttpService = game:GetService("HttpService")
 -- Criar GUI
 local gui = Instance.new("ScreenGui", game.CoreGui)
 local frame = Instance.new("Frame", gui)
-frame.Position = UDim2.new(0.4, 0, 0.4, 0)  -- posição mais centralizada
-frame.Size = UDim2.new(0, 200, 0, 140)      -- tamanho menor
+frame.Position = UDim2.new(0.3, 0, 0.3, 0)
+frame.Size = UDim2.new(0, 320, 0, 300)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.Active = true
 frame.Draggable = true
 
 local box = Instance.new("TextBox", frame)
-box.PlaceholderText = "Nome do jogador"
+box.PlaceholderText = "Nome do jogador (no servidor)"
 box.Position = UDim2.new(0, 10, 0, 10)
-box.Size = UDim2.new(0, 180, 0, 25)
+box.Size = UDim2.new(0, 300, 0, 30)
 box.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 box.TextColor3 = Color3.fromRGB(255, 255, 255)
 box.ClearTextOnFocus = false
-box.Font = Enum.Font.SourceSans
-box.TextSize = 14
 
 local button = Instance.new("TextButton", frame)
 button.Text = "Ativar"
-button.Position = UDim2.new(0, 10, 0, 45)
-button.Size = UDim2.new(0, 180, 0, 25)
+button.Position = UDim2.new(0, 10, 0, 50)
+button.Size = UDim2.new(0, 300, 0, 30)
 button.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.Font = Enum.Font.SourceSansBold
-button.TextSize = 16
+button.TextSize = 18
 
 local info = Instance.new("TextLabel", frame)
-info.Position = UDim2.new(0, 10, 0, 80)
-info.Size = UDim2.new(0, 180, 0, 50)
+info.Position = UDim2.new(0, 10, 0, 90)
+info.Size = UDim2.new(0, 300, 0, 200)
 info.BackgroundTransparency = 1
 info.TextColor3 = Color3.fromRGB(255, 255, 255)
 info.TextWrapped = true
-info.Text = "Informações aqui"
+info.TextScaled = false
 info.TextYAlignment = Enum.TextYAlignment.Top
 info.TextXAlignment = Enum.TextXAlignment.Left
 info.Font = Enum.Font.SourceSans
-info.TextSize = 12
+info.TextSize = 15
+info.Text = "Informações aqui"
 
 local function diasDesde(data)
 	local agora = os.time()
@@ -48,8 +47,7 @@ local function diasDesde(data)
 		month = data.month,
 		day = data.day
 	})
-	local diff = os.difftime(agora, criado)
-	return math.floor(diff / (60 * 60 * 24))
+	return math.floor((agora - criado) / (60 * 60 * 24))
 end
 
 button.MouseButton1Click:Connect(function()
@@ -77,10 +75,45 @@ button.MouseButton1Click:Connect(function()
 		local y, m, d = data:match("(%d+)%-(%d+)%-(%d+)")
 		local dias = diasDesde({year=tonumber(y), month=tonumber(m), day=tonumber(d)})
 
+		-- Contador de amigos
+		local friendsCount = "?"
+		local successFriends, friendsData = pcall(function()
+			return HttpService:JSONDecode(game:HttpGet("https://friends.roblox.com/v1/users/" .. userId .. "/friends/count"))
+		end)
+		if successFriends and friendsData.count then
+			friendsCount = friendsData.count
+		end
+
+		-- Seguidores
+		local followersCount = "?"
+		local successFollowers, followersData = pcall(function()
+			return HttpService:JSONDecode(game:HttpGet("https://friends.roblox.com/v1/users/" .. userId .. "/followers/count"))
+		end)
+		if successFollowers and followersData.count then
+			followersCount = followersData.count
+		end
+
+		-- Seguindo
+		local followingCount = "?"
+		local successFollowing, followingData = pcall(function()
+			return HttpService:JSONDecode(game:HttpGet("https://friends.roblox.com/v1/users/" .. userId .. "/followings/count"))
+		end)
+		if successFollowing and followingData.count then
+			followingCount = followingData.count
+		end
+
+		-- Descrição (bio)
+		local bio = dados.description or "Sem descrição."
+
+		-- Resultado final
 		info.Text = "🧑 Nome Real: " .. dados.name ..
 					"\n🎭 Nome de Exibição: " .. dados.displayName ..
 					"\n📅 Criado em: " .. d .. "/" .. m .. "/" .. y ..
-					"\n⏳ Dias desde criação: " .. dias
+					"\n⏳ Dias desde criação: " .. dias ..
+					"\n👥 Amigos: " .. friendsCount ..
+					"\n👣 Seguidores: " .. followersCount ..
+					"\n➡️ Seguindo: " .. followingCount ..
+					"\n📝 Descrição:\n" .. bio
 	else
 		info.Text = "Erro ao buscar dados do jogador."
 	end
