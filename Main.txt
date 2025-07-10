@@ -1,120 +1,249 @@
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+local SoundService = game:GetService("SoundService")
 
--- Criar GUI
-local gui = Instance.new("ScreenGui", game.CoreGui)
-local frame = Instance.new("Frame", gui)
-frame.Position = UDim2.new(0.3, 0, 0.3, 0)
-frame.Size = UDim2.new(0, 320, 0, 300)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.Active = true
-frame.Draggable = true
+-- Flag para mostrar aviso apenas uma vez
+local avisoMostrado = false
 
-local box = Instance.new("TextBox", frame)
-box.PlaceholderText = "Nome do jogador (no servidor)"
-box.Position = UDim2.new(0, 10, 0, 10)
-box.Size = UDim2.new(0, 300, 0, 30)
-box.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-box.TextColor3 = Color3.fromRGB(255, 255, 255)
-box.ClearTextOnFocus = false
+-- Função para mostrar aviso com som
+local function mostrarAviso()
+    if avisoMostrado then return end
+    avisoMostrado = true
 
-local button = Instance.new("TextButton", frame)
-button.Text = "Ativar"
-button.Position = UDim2.new(0, 10, 0, 50)
-button.Size = UDim2.new(0, 300, 0, 30)
-button.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.Font = Enum.Font.SourceSansBold
-button.TextSize = 18
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://911882118" -- som robótico beep (exemplo)
+    sound.Volume = 0.7
+    sound.Parent = SoundService
 
-local info = Instance.new("TextLabel", frame)
-info.Position = UDim2.new(0, 10, 0, 90)
-info.Size = UDim2.new(0, 300, 0, 200)
-info.BackgroundTransparency = 1
-info.TextColor3 = Color3.fromRGB(255, 255, 255)
-info.TextWrapped = true
-info.TextScaled = false
-info.TextYAlignment = Enum.TextYAlignment.Top
-info.TextXAlignment = Enum.TextXAlignment.Left
-info.Font = Enum.Font.SourceSans
-info.TextSize = 15
-info.Text = "Informações aqui"
+    local gui = Instance.new("ScreenGui", game.CoreGui)
+    gui.Name = "AvisoPrivacidadeGui"
+
+    local frame = Instance.new("Frame", gui)
+    frame.Size = UDim2.new(0, 400, 0, 100)
+    frame.Position = UDim2.new(0.5, -200, 0.1, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BorderSizePixel = 0
+    frame.AnchorPoint = Vector2.new(0.5, 0)
+
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -20, 1, -20)
+    label.Position = UDim2.new(0, 10, 0, 10)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1,1,1)
+    label.TextWrapped = true
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 22
+    label.Text = "⚠️ Atenção: Algumas informações podem estar bloqueadas por privacidade no Roblox."
+
+    sound:Play()
+
+    delay(6, function()
+        gui:Destroy()
+    end)
+end
+
+-- GUI 1 (Infos básicas)
+local ScreenGui1 = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui1.Name = "BasicInfoGui"
+
+local Frame1 = Instance.new("Frame", ScreenGui1)
+Frame1.Size = UDim2.new(0, 320, 0, 210)
+Frame1.Position = UDim2.new(0.35, 0, 0.35, 0)
+Frame1.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame1.BorderSizePixel = 0
+Frame1.Active = true
+Frame1.Draggable = true
+
+local InputBox = Instance.new("TextBox", Frame1)
+InputBox.Size = UDim2.new(0, 300, 0, 30)
+InputBox.Position = UDim2.new(0, 10, 0, 10)
+InputBox.PlaceholderText = "Digite o nick do player"
+InputBox.TextColor3 = Color3.new(1,1,1)
+InputBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+InputBox.ClearTextOnFocus = false
+InputBox.Font = Enum.Font.SourceSans
+InputBox.TextSize = 18
+
+local ButtonBuscar = Instance.new("TextButton", Frame1)
+ButtonBuscar.Size = UDim2.new(0, 300, 0, 35)
+ButtonBuscar.Position = UDim2.new(0, 10, 0, 50)
+ButtonBuscar.Text = "Buscar Informações"
+ButtonBuscar.BackgroundColor3 = Color3.fromRGB(70, 0, 0)
+ButtonBuscar.TextColor3 = Color3.new(1,1,1)
+ButtonBuscar.Font = Enum.Font.SourceSansBold
+ButtonBuscar.TextSize = 18
+
+local LabelInfo = Instance.new("TextLabel", Frame1)
+LabelInfo.Size = UDim2.new(0, 300, 0, 110)
+LabelInfo.Position = UDim2.new(0, 10, 0, 95)
+LabelInfo.Text = "Informações básicas aparecerão aqui."
+LabelInfo.TextColor3 = Color3.new(1,1,1)
+LabelInfo.BackgroundTransparency = 1
+LabelInfo.TextWrapped = true
+LabelInfo.TextYAlignment = Enum.TextYAlignment.Top
+LabelInfo.Font = Enum.Font.SourceSans
+LabelInfo.TextSize = 16
+
+local ButtonAbrirListas = Instance.new("TextButton", Frame1)
+ButtonAbrirListas.Size = UDim2.new(0, 30, 0, 30)
+ButtonAbrirListas.Position = UDim2.new(1, -40, 0, 10)
+ButtonAbrirListas.Text = ">"
+ButtonAbrirListas.BackgroundColor3 = Color3.fromRGB(50,50,50)
+ButtonAbrirListas.TextColor3 = Color3.new(1,1,1)
+ButtonAbrirListas.Font = Enum.Font.SourceSansBold
+ButtonAbrirListas.TextSize = 20
+
+-- GUI 2 (listas)
+local ScreenGui2 = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui2.Name = "ListsGui"
+ScreenGui2.Enabled = false
+
+local Frame2 = Instance.new("Frame", ScreenGui2)
+Frame2.Size = UDim2.new(0, 360, 0, 370)
+Frame2.Position = UDim2.new(0.3, 0, 0.25, 0)
+Frame2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame2.BorderSizePixel = 0
+Frame2.Active = true
+Frame2.Draggable = true
+
+local ButtonFechar = Instance.new("TextButton", Frame2)
+ButtonFechar.Size = UDim2.new(0, 30, 0, 30)
+ButtonFechar.Position = UDim2.new(0, 10, 0, 10)
+ButtonFechar.Text = "<"
+ButtonFechar.BackgroundColor3 = Color3.fromRGB(50,50,50)
+ButtonFechar.TextColor3 = Color3.new(1,1,1)
+ButtonFechar.Font = Enum.Font.SourceSansBold
+ButtonFechar.TextSize = 20
+
+local ScrollFrame = Instance.new("ScrollingFrame", Frame2)
+ScrollFrame.Size = UDim2.new(1, -20, 1, -60)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 50)
+ScrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 10, 0)
+ScrollFrame.ScrollBarThickness = 8
+
+local ListLabel = Instance.new("TextLabel", ScrollFrame)
+ListLabel.Size = UDim2.new(1, -10, 0, 0)
+ListLabel.Position = UDim2.new(0, 5, 0, 5)
+ListLabel.BackgroundTransparency = 1
+ListLabel.TextColor3 = Color3.new(1,1,1)
+ListLabel.TextWrapped = true
+ListLabel.TextXAlignment = Enum.TextXAlignment.Left
+ListLabel.TextYAlignment = Enum.TextYAlignment.Top
+ListLabel.Font = Enum.Font.SourceSans
+ListLabel.TextSize = 16
+ListLabel.AutomaticSize = Enum.AutomaticSize.Y
+ListLabel.Text = ""
+
+local currentUserId = nil
 
 local function diasDesde(data)
 	local agora = os.time()
-	local criado = os.time({
-		year = data.year,
-		month = data.month,
-		day = data.day
-	})
+	local criado = os.time({ year = data.year, month = data.month, day = data.day })
 	return math.floor((agora - criado) / (60 * 60 * 24))
 end
 
-button.MouseButton1Click:Connect(function()
-	local nome = box.Text
-	if nome == "" then
-		info.Text = "Digite o nome de um jogador."
+local function buscarLista(urlBase)
+	local lista = {}
+	local cursor = nil
+	repeat
+		local url = urlBase .. "?limit=100" .. (cursor and "&cursor=" .. cursor or "")
+		local sucesso, resp = pcall(function()
+			return HttpService:JSONDecode(game:HttpGet(url))
+		end)
+		if sucesso and resp and resp.data then
+			for _, v in ipairs(resp.data) do
+				local nome = (v.displayName or v.name or "???") .. " (@" .. (v.name or "?") .. ")"
+				table.insert(lista, nome)
+			end
+			cursor = resp.nextPageCursor
+		else
+			break
+		end
+	until not cursor
+	return lista
+end
+
+local function buscarContagem(url)
+	local sucesso, resp = pcall(function()
+		return HttpService:JSONDecode(game:HttpGet(url))
+	end)
+	if sucesso and resp and resp.count then
+		return resp.count
+	end
+	return 0
+end
+
+local function atualizarListas()
+	if not currentUserId then return end
+	ListLabel.Text = "Carregando listas...\nAguarde..."
+	ScreenGui2.Enabled = true
+
+	spawn(function()
+		local amigos = buscarLista("https://friends.roblox.com/v1/users/" .. currentUserId .. "/friends")
+		local seguidores = buscarLista("https://friends.roblox.com/v1/users/" .. currentUserId .. "/followers")
+		local seguindo = buscarLista("https://friends.roblox.com/v1/users/" .. currentUserId .. "/followings")
+
+		local texto = "👥 Amigos (" .. #amigos .. "):\n" .. table.concat(amigos, "\n") ..
+			"\n\n👣 Seguidores (" .. #seguidores .. "):\n" .. table.concat(seguidores, "\n") ..
+			"\n\n➡️ Seguindo (" .. #seguindo .. "):\n" .. table.concat(seguindo, "\n")
+
+		ListLabel.Text = texto
+		wait(0.1)
+		ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, ListLabel.AbsoluteContentSize.Y + 10)
+	end)
+end
+
+ButtonFechar.MouseButton1Click:Connect(function()
+	ScreenGui2.Enabled = false
+end)
+
+ButtonAbrirListas.MouseButton1Click:Connect(function()
+	if currentUserId then
+		atualizarListas()
+	else
+		LabelInfo.Text = "Busque um jogador primeiro!"
+	end
+end)
+
+ButtonBuscar.MouseButton1Click:Connect(function()
+	local nick = InputBox.Text
+	if nick == "" then
+		LabelInfo.Text = "Digite um nome válido."
 		return
 	end
 
-	local jogador = Players:FindFirstChild(nome)
+	local jogador = Players:FindFirstChild(nick)
 	if not jogador then
-		info.Text = "Jogador não está no servidor."
+		LabelInfo.Text = "Jogador não está no servidor."
 		return
 	end
 
-	local userId = jogador.UserId
+	currentUserId = jogador.UserId
 
-	local success, dados = pcall(function()
-		local res = game:HttpGet("https://users.roblox.com/v1/users/" .. userId)
-		return HttpService:JSONDecode(res)
+	-- Mostrar aviso só na primeira busca
+	mostrarAviso()
+
+	local sucesso, dados = pcall(function()
+		return HttpService:JSONDecode(game:HttpGet("https://users.roblox.com/v1/users/" .. currentUserId))
 	end)
 
-	if success and dados then
-		local data = dados.created:sub(1, 10)
-		local y, m, d = data:match("(%d+)%-(%d+)%-(%d+)")
-		local dias = diasDesde({year=tonumber(y), month=tonumber(m), day=tonumber(d)})
-
-		-- Contador de amigos
-		local friendsCount = "?"
-		local successFriends, friendsData = pcall(function()
-			return HttpService:JSONDecode(game:HttpGet("https://friends.roblox.com/v1/users/" .. userId .. "/friends/count"))
-		end)
-		if successFriends and friendsData.count then
-			friendsCount = friendsData.count
-		end
-
-		-- Seguidores
-		local followersCount = "?"
-		local successFollowers, followersData = pcall(function()
-			return HttpService:JSONDecode(game:HttpGet("https://friends.roblox.com/v1/users/" .. userId .. "/followers/count"))
-		end)
-		if successFollowers and followersData.count then
-			followersCount = followersData.count
-		end
-
-		-- Seguindo
-		local followingCount = "?"
-		local successFollowing, followingData = pcall(function()
-			return HttpService:JSONDecode(game:HttpGet("https://friends.roblox.com/v1/users/" .. userId .. "/followings/count"))
-		end)
-		if successFollowing and followingData.count then
-			followingCount = followingData.count
-		end
-
-		-- Descrição (bio)
-		local bio = dados.description or "Sem descrição."
-
-		-- Resultado final
-		info.Text = "🧑 Nome Real: " .. dados.name ..
-					"\n🎭 Nome de Exibição: " .. dados.displayName ..
-					"\n📅 Criado em: " .. d .. "/" .. m .. "/" .. y ..
-					"\n⏳ Dias desde criação: " .. dias ..
-					"\n👥 Amigos: " .. friendsCount ..
-					"\n👣 Seguidores: " .. followersCount ..
-					"\n➡️ Seguindo: " .. followingCount ..
-					"\n📝 Descrição:\n" .. bio
-	else
-		info.Text = "Erro ao buscar dados do jogador."
+	if not sucesso or not dados then
+		LabelInfo.Text = "Erro ao buscar dados do jogador."
+		return
 	end
+
+	local data = dados.created:sub(1, 10)
+	local y, m, d = data:match("(%d+)%-(%d+)%-(%d+)")
+	local dias = diasDesde({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
+
+	local bio = dados.description ~= "" and dados.description or "Sem descrição."
+
+	local amigosCount = buscarContagem("https://friends.roblox.com/v1/users/" .. currentUserId .. "/friends/count")
+	local seguidoresCount = buscarContagem("https://friends.roblox.com/v1/users/" .. currentUserId .. "/followers/count")
+	local seguindoCount = buscarContagem("https://friends.roblox.com/v1/users/" .. currentUserId .. "/followings/count")
+
+	LabelInfo.Text = ("🧑 Nome: %s\n🎭 Exibição: %s\n🆔 ID: %d\n📅 Criado em: %s/%s/%s\n⏳ Dias desde criação: %d\n📝 Bio: %s\n\n👥 Amigos: %d\n👣 Seguidores: %d\n➡️ Seguindo: %d")
+		:format(dados.name, dados.displayName, currentUserId, d, m, y, dias, bio, amigosCount, seguidoresCount, seguindoCount)
 end)
